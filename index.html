@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dein persönlicher Abschieds-Begleiter</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --primary: #1a73e8;
+      --primary-hover: #1557b0;
+      --success: #188038;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      background: var(--card);
+      max-width: 480px;
+      width: 100%;
+      border-radius: 20px;
+      padding: 32px 26px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: #e8f0fe;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 10px;
+      line-height: 1.3;
+    }
+    p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+      margin: 0 0 22px;
+    }
+    .status {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .status.copied {
+      background: #e6f4ea;
+      border-color: #ceead6;
+      color: var(--success);
+      font-weight: 600;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+      font-size: 14px;
+      padding: 12px 16px;
+    }
+    .btn-secondary:hover { background: #f3f4f6; }
+    .hint {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">✨ Für dich vom gesamten Team</div>
+    <h1>Dein täglicher Abschieds-Gruß</h1>
+    <p>
+      Dein persönlicher Tages-Prompt wird vorbereitet. Gleich öffnet sich Gemini –
+      dort musst du ihn nur noch <strong>einfügen &amp; absenden</strong>!
+    </p>
+
+    <div id="statusBox" class="status">
+      Prompt wird in die Zwischenablage kopiert…
+    </div>
+
+    <a id="openGeminiBtn" class="btn" href="https://gemini.google.com/app" rel="noopener">
+      Jetzt Gemini öffnen &amp; einfügen →
+    </a>
+
+    <button id="copyAgainBtn" class="btn btn-secondary" type="button">
+      Prompt noch einmal kopieren
+    </button>
+
+    <div class="hint">
+      Tipp: Einfach in Gemini ins Textfeld tippen → <strong>Einfügen</strong> → Absenden.
+    </div>
+  </div>
+
+  <!-- HIER DEN PROMPT ANPASSEN (alles zwischen den Backticks ` ... `) -->
+  <script>
+    const ABSCHIEDS_PROMPT = `Du bist mein persönlicher, herzlicher und humorvoller Abschieds-Begleiter, der mir nach meinem Abschied von [Firmen-/Teamname] je nach heutigem Wochentag eine kleine Freude macht.
+
+WICHTIGE REGELN:
+- Sprich [Name des Kollegen] mit „Du“ an.
+- Tonfall: wertschätzend, kollegial, warmherzig und mit einer Prise trockenem Humor – ohne kitschige Floskeln.
+- Prüfe als Erstes das heutige Datum und den aktuellen Wochentag (nutze dazu bei Bedarf kurz die Websuche).
+
+UNSERE ERINNERUNGEN, INSIDER & KOLLEGEN:
+- Rolle & Eigenheiten: [z. B. war unser Fels in der Brandung / berühmter Spruch: „...“]
+- Legendäre Momente:
+  1. [Erinnerung 1, z. B. Sommerfest / Projekt XY]
+  2. [Erinnerung 2, z. B. legendärer Spruch oder Kaffeepause]
+  3. [Erinnerung 3]
+- Ehemalige Kollegen: [Name 1 (Stichwort), Name 2 (Stichwort), Name 3 (Stichwort)]
+
+TAGES-LOGIK (wähle passend zum heutigen Wochentag):
+- Montag: Schreibe ein kurzes, witziges oder herzliches Abschiedsgedicht (4–8 Zeilen) für den Start in die neue Woche ohne uns.
+- Dienstag: Erzähle eine der oben genannten Erinnerungen im Stil eines augenzwinkernden „Weißt du noch damals...“-Rückblicks.
+- Mittwoch: Übermittle einen persönlichen Gruß von einem oder zwei ehemaligen Kollegen inklusive kleinem Update aus dem Büro.
+- Donnerstag: Gib mir einen humorvollen „Überlebens-Tipp“ für meinen neuen Alltag basierend auf unseren alten Büro-Insidern.
+- Freitag: Ein lockerer Wochenend- & Feierabend-Gruß mit virtueller Einladung auf ein Feierabendgetränk.
+- Samstag & Sonntag: Ein kurzer, entspannter Wochenend-Gruß ganz ohne Arbeitsthemen.
+
+Starte JETZT sofort ohne Vorrede mit dem passenden Beitrag für heute!`;
+
+    const statusBox = document.getElementById("statusBox");
+    const copyAgainBtn = document.getElementById("copyAgainBtn");
+    const geminiUrl = "https://gemini.google.com/app";
+
+    async function copyPromptToClipboard() {
+      try {
+        await navigator.clipboard.writeText(ABSCHIEDS_PROMPT);
+        statusBox.textContent = "✅ Prompt kopiert! Du wirst gleich zu Gemini weitergeleitet…";
+        statusBox.classList.add("copied");
+        return true;
+      } catch (err) {
+        // Fallback für ältere Browser / restriktive WebViews
+        const textarea = document.createElement("textarea");
+        textarea.value = ABSCHIEDS_PROMPT;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          statusBox.textContent = "✅ Prompt kopiert! Klicke unten auf „Jetzt Gemini öffnen“.";
+          statusBox.classList.add("copied");
+          document.body.removeChild(textarea);
+          return true;
+        } catch (e) {
+          document.body.removeChild(textarea);
+          statusBox.textContent = "⚠️ Bitte tippe unten auf „Prompt noch einmal kopieren“ und öffne dann Gemini.";
+          return false;
+        }
+      }
+    }
+
+    copyAgainBtn.addEventListener("click", async () => {
+      await copyPromptToClipboard();
+    });
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const success = await copyPromptToClipboard();
+      if (success) {
+        setTimeout(() => {
+          window.location.href = geminiUrl;
+        }, 1600);
+      }
+    });
+  </script>
+</body>
+</html>
