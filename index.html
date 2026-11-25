@@ -8,8 +8,10 @@
     :root {
       --bg: #f4f6fb;
       --card: #ffffff;
-      --primary: #1a73e8;
-      --primary-hover: #1557b0;
+      --gemini: #1a73e8;
+      --gemini-hover: #1557b0;
+      --chatgpt: #10a37f;
+      --chatgpt-hover: #0d8a6a;
       --success: #188038;
       --text: #1f2937;
       --muted: #6b7280;
@@ -39,7 +41,7 @@
     .badge {
       display: inline-block;
       background: #e8f0fe;
-      color: var(--primary);
+      color: var(--gemini);
       font-weight: 600;
       font-size: 13px;
       padding: 6px 12px;
@@ -75,7 +77,6 @@
     .btn {
       display: block;
       width: 100%;
-      background: var(--primary);
       color: #fff;
       border: none;
       border-radius: 12px;
@@ -84,14 +85,23 @@
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, transform 0.1s ease;
     }
-    .btn:hover { background: var(--primary-hover); }
+    .btn:active { transform: scale(0.99); }
+    .btn-gemini {
+      background: var(--gemini);
+    }
+    .btn-gemini:hover { background: var(--gemini-hover); }
+    .btn-chatgpt {
+      background: var(--chatgpt);
+      margin-top: 12px;
+    }
+    .btn-chatgpt:hover { background: var(--chatgpt-hover); }
     .btn-secondary {
       background: #ffffff;
       color: var(--text);
       border: 1px solid var(--border);
-      margin-top: 10px;
+      margin-top: 18px;
       font-size: 14px;
       padding: 12px 16px;
     }
@@ -100,6 +110,7 @@
       margin-top: 18px;
       font-size: 13px;
       color: var(--muted);
+      line-height: 1.45;
     }
   </style>
 </head>
@@ -108,24 +119,28 @@
     <div class="badge">✨ Für dich vom gesamten Team</div>
     <h1>Dein täglicher Abschieds-Gruß</h1>
     <p>
-      Dein persönlicher Tages-Prompt wird vorbereitet. Gleich öffnet sich Gemini –
-      dort musst du ihn nur noch <strong>einfügen &amp; absenden</strong>!
+      Wähle deinen Lieblings-Assistenten: Dein Tages-Prompt wird automatisch
+      kopiert – dort musst du ihn nur noch <strong>einfügen &amp; absenden</strong>!
     </p>
 
     <div id="statusBox" class="status">
       Prompt wird in die Zwischenablage kopiert…
     </div>
 
-    <a id="openGeminiBtn" class="btn" href="https://gemini.google.com/app" rel="noopener">
-      Jetzt Gemini öffnen &amp; einfügen →
-    </a>
+    <button id="openGeminiBtn" class="btn btn-gemini" type="button">
+      Mit Google Gemini öffnen →
+    </button>
+
+    <button id="openChatgptBtn" class="btn btn-chatgpt" type="button">
+      Mit ChatGPT öffnen →
+    </button>
 
     <button id="copyAgainBtn" class="btn btn-secondary" type="button">
-      Prompt noch einmal kopieren
+      Prompt manuell kopieren
     </button>
 
     <div class="hint">
-      Tipp: Einfach in Gemini ins Textfeld tippen → <strong>Einfügen</strong> → Absenden.
+      Tipp: Falls der Prompt nicht automatisch eingefügt wird, tippe im Chat einfach ins Textfeld → <strong>Einfügen</strong> → Absenden.
     </div>
   </div>
 
@@ -157,17 +172,19 @@ TAGES-LOGIK (wähle passend zum heutigen Wochentag):
 Starte JETZT sofort ohne Vorrede mit dem passenden Beitrag für heute!`;
 
     const statusBox = document.getElementById("statusBox");
+    const openGeminiBtn = document.getElementById("openGeminiBtn");
+    const openChatgptBtn = document.getElementById("openChatgptBtn");
     const copyAgainBtn = document.getElementById("copyAgainBtn");
+
     const geminiUrl = "https://gemini.google.com/app";
 
     async function copyPromptToClipboard() {
       try {
         await navigator.clipboard.writeText(ABSCHIEDS_PROMPT);
-        statusBox.textContent = "✅ Prompt kopiert! Du wirst gleich zu Gemini weitergeleitet…";
+        statusBox.textContent = "✅ Prompt ist kopiert! Wähle jetzt unten Gemini oder ChatGPT:";
         statusBox.classList.add("copied");
         return true;
       } catch (err) {
-        // Fallback für ältere Browser / restriktive WebViews
         const textarea = document.createElement("textarea");
         textarea.value = ABSCHIEDS_PROMPT;
         textarea.style.position = "fixed";
@@ -177,29 +194,36 @@ Starte JETZT sofort ohne Vorrede mit dem passenden Beitrag für heute!`;
         textarea.select();
         try {
           document.execCommand("copy");
-          statusBox.textContent = "✅ Prompt kopiert! Klicke unten auf „Jetzt Gemini öffnen“.";
+          statusBox.textContent = "✅ Prompt ist kopiert! Wähle jetzt unten Gemini oder ChatGPT:";
           statusBox.classList.add("copied");
           document.body.removeChild(textarea);
           return true;
         } catch (e) {
           document.body.removeChild(textarea);
-          statusBox.textContent = "⚠️ Bitte tippe unten auf „Prompt noch einmal kopieren“ und öffne dann Gemini.";
+          statusBox.textContent = "⚠️ Tippe auf „Prompt manuell kopieren“ und wähle dann deine KI.";
           return false;
         }
       }
     }
+
+    openGeminiBtn.addEventListener("click", async () => {
+      await copyPromptToClipboard();
+      window.location.href = geminiUrl;
+    });
+
+    openChatgptBtn.addEventListener("click", async () => {
+      await copyPromptToClipboard();
+      // ChatGPT unterstützt ?q= als URL-Parameter – zusätzlich ist der Text in der Zwischenablage!
+      const chatgptUrl = "https://chatgpt.com/?q=" + encodeURIComponent(ABSCHIEDS_PROMPT);
+      window.location.href = chatgptUrl;
+    });
 
     copyAgainBtn.addEventListener("click", async () => {
       await copyPromptToClipboard();
     });
 
     window.addEventListener("DOMContentLoaded", async () => {
-      const success = await copyPromptToClipboard();
-      if (success) {
-        setTimeout(() => {
-          window.location.href = geminiUrl;
-        }, 1600);
-      }
+      await copyPromptToClipboard();
     });
   </script>
 </body>
